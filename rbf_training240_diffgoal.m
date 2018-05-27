@@ -7,58 +7,89 @@ clear all
 close all
 %% 产生训练样本（训练输入，训练输出）
 % ld为样本例数
-V_data=xlsread('C:\Users\hn\AnacondaProjects\w-RBFforEML\rbf_training_data940ILmv.xls');
+V_data=xlsread('C:\Users\hn\AnacondaProjects\w-RBFforEML\rbf神经网络算法matlab\rbf_training_data940vLmI_921-940.xls');
 ld=length(V_data(:,1)); 
 
 S_num=ld;
-test_num = 19
-train_num = S_num - test_num
+test_num = 20;
+train_num = 400 - test_num;
+ik_int = 0;
 
-x=V_data(:,1:3)';
-x1_I=V_data(:,1)';
-x2_L=V_data(:,2)';
-x3_m=V_data(:,3)';
 
-v=V_data(: ,4)';
 %% 数据标准化
 
-data_scal2 = []
+for ik = 0.1:0.1:1
 
-for i = 1:4
-    mean_data = mean(V_data(:,i), 1)
-    std_data = std(V_data(:,i), 0, 1)
-    data_scal2(:,i) = ( V_data(:,i) - mean_data ) / std_data
+    train_num_ik = train_num*ik;
+    data_scal = [];
+
+    for i = 1:4
+        mean_data = mean(V_data(1:train_num_ik,i), 1);
+        std_data = std(V_data(1:train_num_ik,i), 0, 1);
+        data_scal(:,i) = ( V_data(1:train_num_ik,i) - mean_data ) / std_data;
     
-end
+    end
 
-x_scal = data_scal2(:,1:3)';
-v_scal = data_scal2(:,4)'
+x_train = data_scal(test_num+1:train_num_ik , 1:3)';
+y_train = data_scal(test_num+1:train_num_ik ,4)';
 
 
 %% 建立RBF神经网络 
 % 采用approximate RBF神经网络。spread为默认值
 
-x_train = x_scal(:,test_num+1:300);
-v_train = v_scal(:,test_num+1:300);
+%x_train = x_scal(:,test_num+1:train_num*ik);
+%v_train = v_scal(:,test_num+1:train_num*ik);
 
-net=newrb(x_train ,v_train);
+net=newrb(x_train ,y_train,0,1,140,70);
 
 %% 建立测试样本
 
-x_test = x_scal(: , 1:test_num);
-y_test = v_scal(: , 1:test_num);
+x_test = data_scal( 1:test_num , 1:3)';
+y_test = data_scal( 1:test_num , 4)';
 
 %% 使用建立的RBF网络进行模拟，得出网络输出
 
 y_test_pred = sim(net,x_test);
+y_train_pred = sim(net,x_train);
 
 %% 标准化还原函数
 
-ytest_pred_orig = y_test_pred*std_data+ mean_data
-ytest_orig = y_test*std_data+ mean_data
+ytest_pred_orig = y_test_pred*std_data+ mean_data;
+ytest_orig = y_test*std_data+ mean_data;
 
-diff = ytest_orig - ytest_pred_orig
-diff_mean = mean(diff)
-diff_std = std(diff)
+ytrain_pred_orig = y_train_pred*std_data+ mean_data;
+ytrain_orig = y_train*std_data+ mean_data;
+
+
+ik_int = ik_int+1;
+
+train_num_list(1,ik_int) = train_num_ik;
+train_diff = ytrain_orig - ytrain_pred_orig;
+train_diffmean(1,ik_int) = mean(train_diff);
+train_diffstd(1,ik_int) = std(train_diff);
+
+test_diff = ytest_pred_orig - ytest_orig
+test_diff_abs = abs(ytest_orig - ytest_pred_orig);
+test_diffmean(1,ik_int) = mean(test_diff_abs);
+test_diffstd(1,ik_int) = std(test_diff);
+
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
