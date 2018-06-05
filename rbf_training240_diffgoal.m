@@ -7,7 +7,7 @@ clear all
 close all
 %% 产生训练样本（训练输入，训练输出）
 % ld为样本例数
-V_data=xlsread('C:\Users\hn\AnacondaProjects\python_coding\rbf_training_data940ILmv.xls');
+V_data=xlsread('C:\Users\hn\AnacondaProjects\python_coding\rbf_training_data940vLmI_901_920.xls');
 ld=length(V_data(:,1)); 
 
 S_num=ld;
@@ -18,7 +18,8 @@ ik_int = 0;
 
 %% 数据标准化
 
-for ik = 0.1:0.1:1
+for ik = 1
+%for ik = 0.1:0.1:1
 
     train_num_ik = train_num*ik;
     data_scal = [];
@@ -40,7 +41,7 @@ y_train = data_scal(test_num+1:train_num_ik ,4)';
 %x_train = x_scal(:,test_num+1:train_num*ik);
 %v_train = v_scal(:,test_num+1:train_num*ik);
 
-net=newrb(x_train ,y_train,0.01,0.93,160,4);
+net=newrb(x_train ,y_train,0,1,140,70);
 
 %% 建立测试样本
 
